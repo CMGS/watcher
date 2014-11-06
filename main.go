@@ -22,6 +22,7 @@ func main() {
 	var hostname string
 	var endpoint string
 
+	flag.BoolVar(&logs.Mode, "Debug", false, "enable debug")
 	flag.IntVar(&config.ReportInterval, "report", 10, "report interval")
 	flag.StringVar(&config.Host, "host", "10.1.201.42:8086", "influxdb host")
 	flag.StringVar(&config.Username, "username", "root", "user name")
@@ -50,6 +51,7 @@ func main() {
 		logs.Info("load", name, sid)
 	}
 
+	go Metrics.Report()
 	sc := make(chan os.Signal, 1)
 	signal.Notify(sc, os.Interrupt)
 	signal.Notify(sc, syscall.SIGTERM)
@@ -57,4 +59,5 @@ func main() {
 	signal.Notify(sc, syscall.SIGKILL)
 	signal.Notify(sc, syscall.SIGQUIT)
 	logs.Info("Got <-", <-sc)
+	Metrics.Stop()
 }
