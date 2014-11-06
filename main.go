@@ -47,6 +47,7 @@ func main() {
 		}
 		name := strings.Split(container.Names[0], "_")[0]
 		Metrics.Add(name, sid, common.DEFAULT_TYPE)
+		logs.Info("load", name, sid)
 	}
 
 	sc := make(chan os.Signal, 1)
