@@ -28,6 +28,7 @@ func main() {
 	flag.StringVar(&config.Password, "password", "root", "user password")
 	flag.StringVar(&config.Database, "database", "test", "database name")
 	flag.StringVar(&endpoint, "endpoint", "tcp://192.168.59.103:2375", "docker endpoint")
+	flag.Parse()
 
 	Metrics = metrics.NewMetricsRecorder(hostname, config)
 	common.Docker = defines.NewDocker(endpoint)
