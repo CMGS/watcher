@@ -45,7 +45,7 @@ func main() {
 			logs.Info(container.Names, sid, "die")
 			continue
 		}
-		name := strings.Split(container.Names[0], "_")[0]
+		name := strings.Trim(strings.Split(container.Names[0], "_")[0], "/")
 		Metrics.Add(name, sid, common.DEFAULT_TYPE)
 		logs.Info("load", name, sid)
 	}
