@@ -17,6 +17,17 @@ import (
 
 var Metrics *metrics.MetricsRecorder
 
+func exit() {
+	sc := make(chan os.Signal, 1)
+	signal.Notify(sc, os.Interrupt)
+	signal.Notify(sc, syscall.SIGTERM)
+	signal.Notify(sc, syscall.SIGHUP)
+	signal.Notify(sc, syscall.SIGKILL)
+	signal.Notify(sc, syscall.SIGQUIT)
+	logs.Info("Got <-", <-sc)
+	Metrics.Stop()
+}
+
 func main() {
 	var config defines.MetricsConfig
 	var hostname string
@@ -51,13 +62,6 @@ func main() {
 		logs.Info("load", name, sid)
 	}
 
-	go Metrics.Report()
-	sc := make(chan os.Signal, 1)
-	signal.Notify(sc, os.Interrupt)
-	signal.Notify(sc, syscall.SIGTERM)
-	signal.Notify(sc, syscall.SIGHUP)
-	signal.Notify(sc, syscall.SIGKILL)
-	signal.Notify(sc, syscall.SIGQUIT)
-	logs.Info("Got <-", <-sc)
-	Metrics.Stop()
+	go exit()
+	Metrics.Report()
 }
