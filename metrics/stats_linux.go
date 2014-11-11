@@ -23,6 +23,7 @@ func InitDevDir() {
 	if err != nil {
 		return
 	}
+	logs.Debug("Device Dir", devDir)
 }
 
 func GetCgroupStats(id string) (m *cgroups.Stats, err error) {
