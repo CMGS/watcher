@@ -35,11 +35,11 @@ func NewInfluxDBClient(hostname string, config defines.MetricsConfig) *InfluxDBC
 
 func (self *InfluxDBClient) GenSeries(cid string, app *MetricData) {
 	points := [][]interface{}{
-		{self.hostname, app.apptype, cid, "cpu_usage", metric.cpu_usage},
-		{self.hostname, app.apptype, cid, "cpu_system", metric.cpu_system},
-		{self.hostname, app.apptype, cid, "cpu_user", metric.cpu_user},
-		{self.hostname, app.apptype, cid, "mem_usage", metric.mem_usage},
-		{self.hostname, app.apptype, cid, "mem_rss", metric.mem_rss},
+		{self.hostname, app.apptype, cid, "cpu_usage", app.cpu_usage},
+		{self.hostname, app.apptype, cid, "cpu_system", app.cpu_system},
+		{self.hostname, app.apptype, cid, "cpu_user", app.cpu_user},
+		{self.hostname, app.apptype, cid, "mem_usage", app.mem_usage},
+		{self.hostname, app.apptype, cid, "mem_rss", app.mem_rss},
 	}
 	if app.isapp {
 		p2 := [][]interface{}{
@@ -53,7 +53,7 @@ func (self *InfluxDBClient) GenSeries(cid string, app *MetricData) {
 		}
 	}
 	series := &client.Series{
-		Name:    metric.app.Name,
+		Name:    app.appname,
 		Columns: influxdb_columns,
 		Points:  points,
 	}
