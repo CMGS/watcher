@@ -40,16 +40,12 @@ func (self *InfluxDBClient) GenSeries(cid string, app *MetricData) {
 		{self.hostname, app.apptype, cid, "cpu_user", app.cpu_user},
 		{self.hostname, app.apptype, cid, "mem_usage", app.mem_usage},
 		{self.hostname, app.apptype, cid, "mem_rss", app.mem_rss},
+		{self.hostname, app.apptype, cid, "mem_max_usage", app.mem_max_usage},
 	}
 	if app.isapp {
-		p2 := [][]interface{}{
-			{self.hostname, app.apptype, cid, "net_recv", app.net_inbytes},
-			{self.hostname, app.apptype, cid, "net_send", app.net_outbytes},
-			{self.hostname, app.apptype, cid, "net_recv_err", app.net_inerrs},
-			{self.hostname, app.apptype, cid, "net_send_err", app.net_outerrs},
-		}
-		for _, p := range p2 {
-			points = append(points, p)
+		for key, data := range app.network {
+			p2 := []interface{}{self.hostname, app.apptype, cid, key, data}
+			points = append(points, p2)
 		}
 	}
 	series := &client.Series{

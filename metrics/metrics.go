@@ -14,8 +14,9 @@ type MetricData struct {
 	apptype string
 	isapp   bool
 
-	mem_usage uint64
-	mem_rss   uint64
+	mem_usage     uint64
+	mem_rss       uint64
+	mem_max_usage uint64
 
 	cpu_user   uint64
 	cpu_system uint64
@@ -45,11 +46,11 @@ func (self *MetricData) UpdateStats(cid string) bool {
 	self.cpu_usage = stats.CpuStats.CpuUsage.TotalUsage
 
 	self.mem_usage = stats.MemoryStats.Usage
-	self.mem_max_usage = stats.MemoryStats.MaxUsage
 	self.mem_rss = stats.MemoryStats.Stats["rss"]
+	self.mem_max_usage = stats.MemoryStats.MaxUsage
 
 	if self.isapp {
-		if self.network, err = self.GetNetStats(cid); err != nil {
+		if self.network, err = GetNetStats(cid); err != nil {
 			logs.Info(err)
 			return false
 		}
@@ -85,7 +86,7 @@ func (self *MetricsRecorder) Add(appname, cid, apptype string) {
 		return
 	}
 	self.apps[cid] = NewMetricData(appname, apptype)
-	self.apps[cid].InitStats(cid)
+	self.apps[cid].UpdateStats(cid)
 }
 
 func (self *MetricsRecorder) Remove(cid string) {
