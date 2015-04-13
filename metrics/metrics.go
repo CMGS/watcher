@@ -33,6 +33,8 @@ type MetricData struct {
 	network      map[string]uint64
 	last_network map[string]uint64
 	network_rate map[string]float64
+
+	t time.Time
 }
 
 func NewMetricData(appname, apptype string) *MetricData {
