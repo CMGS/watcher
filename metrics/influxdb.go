@@ -34,6 +34,7 @@ func NewInfluxDBClient(hostname string, config defines.MetricsConfig) *InfluxDBC
 }
 
 func (self *InfluxDBClient) GenSeries(cid string, app *MetricData) {
+	logs.Debug(app)
 	points := [][]interface{}{
 		{self.hostname, app.apptype, cid, "cpu_usage", app.cpu_usage},
 		{self.hostname, app.apptype, cid, "cpu_system", app.cpu_system},
