@@ -22,7 +22,17 @@ type MetricData struct {
 	cpu_system uint64
 	cpu_usage  uint64
 
-	network map[string]uint64
+	last_cpu_user   uint64
+	last_cpu_system uint64
+	last_cpu_usage  uint64
+
+	cpu_user_rate   float64
+	cpu_system_rate float64
+	cpu_usage_rate  float64
+
+	network      map[string]uint64
+	last_network map[string]uint64
+	network_rate map[string]float64
 }
 
 func NewMetricData(appname, apptype string) *MetricData {
@@ -58,6 +68,41 @@ func (self *MetricData) UpdateStats(cid string) bool {
 	return true
 }
 
+func (self *MetricData) SaveLast() {
+	self.last_cpu_user = self.cpu_user
+	self.last_cpu_system = self.cpu_system
+	self.last_cpu_usage = self.cpu_usage
+	self.last_network = map[string]uint64{}
+	for key, data := range self.network {
+		self.last_network[key] = data
+	}
+}
+
+func (self *MetricData) CalcRate() {
+	t := time.Now().Sub(self.t)
+	nano_t := float64(t.Nanoseconds())
+	if self.cpu_user > self.last_cpu_user {
+		self.cpu_user_rate = float64(self.cpu_user-self.last_cpu_user) / nano_t
+	}
+	if self.cpu_system > self.last_cpu_system {
+		self.cpu_system_rate = float64(self.cpu_system-self.last_cpu_system) / nano_t
+	}
+	if self.cpu_usage > self.last_cpu_usage {
+		self.cpu_usage_rate = float64(self.cpu_usage-self.last_cpu_usage) / nano_t
+	}
+	second_t := t.Seconds()
+	self.network_rate = map[string]float64{}
+	for key, data := range self.network {
+		if data >= self.last_network[key] {
+			self.network_rate[key+".rate"] = float64(data-self.last_network[key]) / second_t
+		}
+	}
+}
+
+func (self *MetricData) UpdateTime() {
+	self.t = time.Now()
+}
+
 type MetricsRecorder struct {
 	mu     *sync.Mutex
 	apps   map[string]*MetricData
@@ -86,7 +131,9 @@ func (self *MetricsRecorder) Add(appname, cid, apptype string) {
 		return
 	}
 	self.apps[cid] = NewMetricData(appname, apptype)
+	self.apps[cid].UpdateTime()
 	self.apps[cid].UpdateStats(cid)
+	self.apps[cid].SaveLast()
 }
 
 func (self *MetricsRecorder) Remove(cid string) {
@@ -126,8 +173,11 @@ func (self *MetricsRecorder) Send() {
 	for ID, metric := range self.apps {
 		go func(ID string, metric *MetricData) {
 			defer self.wg.Done()
-			self.client.GenSeries(ID, metric)
+			metric.UpdateTime()
 			metric.UpdateStats(ID)
+			metric.CalcRate()
+			self.client.GenSeries(ID, metric)
+			metric.SaveLast()
 		}(ID, metric)
 	}
 	self.wg.Wait()
