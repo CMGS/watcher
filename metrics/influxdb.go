@@ -42,7 +42,7 @@ func (self *InfluxDBClient) GenSeries(cid string, app *MetricData) {
 		{self.hostname, app.apptype, cid, "mem_usage", app.mem_usage},
 		{self.hostname, app.apptype, cid, "mem_rss", app.mem_rss},
 		{self.hostname, app.apptype, cid, "mem_max_usage", app.mem_max_usage},
-		{self.hostname, app.apptype, cid, "cpu_usage_rate", app.cpu_user_rate},
+		{self.hostname, app.apptype, cid, "cpu_usage_rate", app.cpu_usage_rate},
 		{self.hostname, app.apptype, cid, "cpu_system_rate", app.cpu_system_rate},
 		{self.hostname, app.apptype, cid, "cpu_user_rate", app.cpu_user_rate},
 	}
