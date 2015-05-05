@@ -52,9 +52,7 @@ func GetNetStats(cid string) (result map[string]uint64, err error) {
 	}
 	logs.Debug("Create exec id", exec.ID)
 	outr, outw := io.Pipe()
-	errr, errw := io.Pipe()
 	defer outr.Close()
-	defer errr.Close()
 
 	success := make(chan struct{})
 	failure := make(chan error)
@@ -63,12 +61,10 @@ func GetNetStats(cid string) (result map[string]uint64, err error) {
 			exec.ID,
 			docker.StartExecOptions{
 				OutputStream: outw,
-				ErrorStream:  errw,
 				Success:      success,
 			},
 		)
 		outw.Close()
-		errr.Close()
 		if err != nil {
 			close(success)
 			failure <- err
