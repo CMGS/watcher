@@ -157,6 +157,7 @@ func (self *MetricsRecorder) Add(appname, cid, apptype string) {
 	time.Sleep(1 * time.Second)
 	if err := m.SetExec(cid); err != nil {
 		logs.Info("Create Exec Command Failed", err)
+		return
 	}
 	m.UpdateTime()
 	m.UpdateStats(cid)
