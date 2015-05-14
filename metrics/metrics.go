@@ -205,7 +205,7 @@ func (self *MetricsRecorder) Send() {
 		go func(ID string, metric *MetricData) {
 			defer self.wg.Done()
 			if !metric.UpdateStats(ID) {
-				continue
+				return
 			}
 			metric.CalcRate()
 			self.client.GenSeries(ID, metric)
